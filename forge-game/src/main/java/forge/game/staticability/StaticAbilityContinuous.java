@@ -1063,22 +1063,39 @@ public final class StaticAbilityContinuous {
         // non - CharacteristicDefining
         CardCollection affectedCards = new CardCollection();
 
-        // add preList in addition to the normal affected cards
-        // need to add before game cards to have preference over them
-        if (!preList.isEmpty()) {
-            if (stAb.hasParam("AffectedZone")) {
+        // If the static ability would add an alternative cost to a card,
+        // and that alternative cost can be paid whenever the card could normally be
+        // cast, apply keyword to affected cards in all zones.
+        if (stAb.hasParam("AddKeyword") && stAb.getParam("AddKeyword").startsWith("Prowl")) {
+        	// TODO: Extend this logic to all alternative costs without zone restrictions,
+        	// not just Prowl.
+        	// add preList in addition to the normal affected cards
+            // need to add before game cards to have preference over them
+            if (!preList.isEmpty()) {
                 affectedCards.addAll(CardLists.filter(preList, CardPredicates.inZone(
-                        ZoneType.listValueOf(stAb.getParam("AffectedZone")))));
+                    ZoneType.CASTABLE_ZONES)));
+            }
+            
+            affectedCards.addAll(game.getCardsIn(ZoneType.CASTABLE_ZONES));
+        } else {
+        	// add preList in addition to the normal affected cards
+            // need to add before game cards to have preference over them
+            if (!preList.isEmpty()) {
+                if (stAb.hasParam("AffectedZone")) {
+                    affectedCards.addAll(CardLists.filter(preList, CardPredicates.inZone(
+                            ZoneType.listValueOf(stAb.getParam("AffectedZone")))));
+                } else {
+                    affectedCards.addAll(CardLists.filter(preList, CardPredicates.inZone(ZoneType.Battlefield)));
+                }
+            }
+
+            if (stAb.hasParam("AffectedZone")) {
+                affectedCards.addAll(game.getCardsIn(ZoneType.listValueOf(stAb.getParam("AffectedZone"))));
             } else {
-                affectedCards.addAll(CardLists.filter(preList, CardPredicates.inZone(ZoneType.Battlefield)));
+                affectedCards.addAll(game.getCardsIn(ZoneType.Battlefield));
             }
         }
-
-        if (stAb.hasParam("AffectedZone")) {
-            affectedCards.addAll(game.getCardsIn(ZoneType.listValueOf(stAb.getParam("AffectedZone"))));
-        } else {
-            affectedCards.addAll(game.getCardsIn(ZoneType.Battlefield));
-        }
+        
         if (stAb.hasParam("Affected")) {
             // Handle Shaman's Trance
             CardCollection affectedCardsOriginal = null;

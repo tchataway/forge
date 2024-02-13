@@ -30,6 +30,8 @@ public enum ZoneType {
 
     public static final List<ZoneType> STATIC_ABILITIES_SOURCE_ZONES = Arrays.asList(Battlefield, Graveyard, Exile, Command, Stack/*, Hand*/);
 
+    public static final List<ZoneType> CASTABLE_ZONES = Arrays.asList(Hand, Library, Graveyard, Exile, Command);
+    
     private final boolean holdsHiddenInfo;
     private final String zoneName;
     ZoneType(boolean holdsHidden, String name) {
